@@ -1,0 +1,17 @@
+{
+  "name": "@noemarius/nodered-adt-create",
+  "version": "0.0.1",
+  "description": "Azure DT Nodes",
+  "dependencies": {
+    "azure-digital-twins-core": "^0.0.1-security.2",
+    "azure-identity": "^0.0.1-security"
+  },
+  "keywords": [
+    "node-red"
+  ],
+  "node-red": {
+    "nodes": {
+      "create-twin": "create-twin.js"
+    }
+  }
+}
