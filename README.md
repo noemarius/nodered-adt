@@ -39,7 +39,7 @@ This flow will create or update a digital twin in Azure Digital Twins and output
 
 ## License
 
-This project is licensed under the MIT License - see the [License](license) file in this repository for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file in this repository for details.
 
 ---
 
