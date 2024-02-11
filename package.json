@@ -1,6 +1,6 @@
 {
   "name": "@noemarius/nodered-adt-create",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Azure DT Nodes",
   "dependencies": {
     "azure-digital-twins-core": "^0.0.1-security.2",

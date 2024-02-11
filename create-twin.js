@@ -37,5 +37,5 @@ module.exports = function (RED) {
       }
     });
   }
-  RED.nodes.registerType("createTwin", createTwinNode);
+  RED.nodes.registerType("createTwin", createTwin);
 };
