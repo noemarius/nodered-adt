@@ -3,11 +3,11 @@
   "version": "0.0.3",
   "description": "Azure DT Nodes",
   "dependencies": {
-    "azure-digital-twins-core": "^0.0.1-security.2",
-    "azure-identity": "^0.0.1-security"
+    "@azure/digital-twins-core": "latest",
+    "@azure/identity": "latest"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=18.0.0"
   },
   "keywords": [
     "node-red",
