@@ -35,7 +35,7 @@ module.exports = function (RED) {
         msg.payload = result;
         node.send(msg);
       } catch (error) {
-        node.error("Failed to create digital twin: " + error.message);
+        node.error("Failed to create digital twin: " + JSON.stringify(error));
       }
     });
   }
