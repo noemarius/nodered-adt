@@ -5,10 +5,11 @@ module.exports = function (RED) {
   function createTwin(config) {
     RED.nodes.createNode(this, config);
     var node = this;
-    const tenantId = node.tenantId;
-    const clientId = node.clientId;
-    const clientSecret = node.clientSecret;
-    const digitalTwinsUrl = node.digitalTwinsUrl;
+
+    const tenantId = config.tenantId;
+    const clientId = config.clientId;
+    const clientSecret = config.clientSecret;
+    const digitalTwinsUrl = config.digitalTwinsUrl;
 
     node.on("input", async function (msg) {
       const credential = new ClientSecretCredential(
@@ -16,6 +17,7 @@ module.exports = function (RED) {
         clientId,
         clientSecret
       );
+
       const digitalTwinsClient = new DigitalTwinsClient(
         digitalTwinsUrl,
         credential
@@ -37,5 +39,6 @@ module.exports = function (RED) {
       }
     });
   }
+
   RED.nodes.registerType("createTwin", createTwin);
 };
