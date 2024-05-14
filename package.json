@@ -1,6 +1,6 @@
 {
   "name": "@noemarius/nodered-adt-create",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Azure DT Nodes",
   "dependencies": {
     "@azure/digital-twins-core": "latest",
@@ -17,7 +17,8 @@
   ],
   "node-red": {
     "nodes": {
-      "create-twin": "create-twin.js"
+      "create-twin": "create-twin.js",
+      "batch-create-twin": "batch-create-twin.js"
     }
   }
 }
