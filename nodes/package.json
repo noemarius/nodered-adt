@@ -16,6 +16,7 @@
     "azure dt"
   ],
   "node-red": {
+    "version": ">=3.1.9",
     "nodes": {
       "azure-dt-config": "azure-dt-config.js",
       "create-twin": "create-twin.js",
@@ -27,5 +28,13 @@
       "delete-all-twins": "delete-all-twins.js",
       "get-twins": "get-twins.js"
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noemarius/nodered-adt"
+  },
+  "bugs": {
+    "url": "https://github.com/noemarius/nodered-adt/issues"
+  },
+  "license": "MIT"
 }
