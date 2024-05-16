@@ -2,7 +2,7 @@ const { ClientSecretCredential } = require("@azure/identity");
 const { DigitalTwinsClient } = require("@azure/digital-twins-core");
 
 module.exports = function (RED) {
-  function createTwinNode(config) {
+  function updateTwinsNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
     const az = RED.nodes.getNode(config.azureDTConfig);
@@ -20,15 +20,15 @@ module.exports = function (RED) {
           credential
         );
 
-        const { twinId, twinData } = msg.payload;
+        const { twinId, patch } = msg.payload;
 
-        if (!twinId || !twinData) {
-          throw new Error("Payload must contain twinId and twinData");
+        if (!twinId || !patch) {
+          throw new Error("Payload must contain twinId and patch");
         }
 
-        const result = await digitalTwinsClient.upsertDigitalTwin(
+        const result = await digitalTwinsClient.updateDigitalTwin(
           twinId,
-          JSON.stringify(twinData)
+          patch
         );
 
         msg.payload = result;
@@ -44,5 +44,5 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType("createTwin", createTwinNode);
+  RED.nodes.registerType("updateTwins", updateTwinsNode);
 };

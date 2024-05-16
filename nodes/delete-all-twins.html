@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('deleteTwin',{
+    RED.nodes.registerType('deleteAllTwins',{
         category: 'AZDT',
         color: '#a6bbcf',
         icon: "icons/function.svg",
@@ -10,12 +10,12 @@
         inputs: 1,
         outputs: 1,
         label: function() {
-            return this.name || "deleteTwin";
+            return this.name || "deleteAllTwins";
         }
     });
 </script>
 
-<script type="text/html" data-template-name="deleteTwin">
+<script type="text/html" data-template-name="deleteAllTwins">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -26,6 +26,9 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="deleteTwin">
-    <p>This node allows you to delete a digital twin using Azure Digital Twins. Configure the Tenant ID, Client ID, Client Secret, and the Digital Twins URL to set up the node.</p>
+<script type="text/html" data-help-name="deleteAllTwins">
+    <p>
+        This node allows you to batch delete digital twins using Azure Digital Twins.
+        Takes as payload input ids as str[].
+    </p>
 </script>

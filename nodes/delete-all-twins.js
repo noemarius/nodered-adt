@@ -2,7 +2,7 @@ const { ClientSecretCredential } = require("@azure/identity");
 const { DigitalTwinsClient } = require("@azure/digital-twins-core");
 
 module.exports = function (RED) {
-  function deleteTwinNode(config) {
+  function deleteAllTwinsNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
     const az = RED.nodes.getNode(config.azureDTConfig);
@@ -20,17 +20,19 @@ module.exports = function (RED) {
           credential
         );
 
-        const { twinId } = msg.payload;
+        const query = `SELECT * FROM digitaltwins`;
+        const response = digitalTwinsClient.queryTwins(query);
 
-        if (!twinId) {
-          throw new Error("Payload must contain twinId");
+        for await (const page of response.byPage()) {
+          const deletePromises = page.value.map((twin) =>
+            digitalTwinsClient.deleteDigitalTwin(twin.$dtId)
+          );
+          await Promise.all(deletePromises);
         }
-
-        await digitalTwinsClient.deleteDigitalTwin(twinId);
 
         msg.payload = {
           success: true,
-          message: "Digital twin deleted successfully.",
+          message: "Digital twins deleted successfully.",
         };
         node.send(msg);
       } catch (error) {
@@ -44,5 +46,5 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType("deleteTwin", deleteTwinNode);
+  RED.nodes.registerType("deleteAllTwins", deleteAllTwinsNode);
 };

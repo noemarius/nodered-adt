@@ -3,48 +3,52 @@ const { DigitalTwinsClient } = require("@azure/digital-twins-core");
 
 module.exports = function (RED) {
   function batchCreateTwin(config) {
+    RED.nodes.createNode(this, config);
     const node = this;
     const az = RED.nodes.getNode(config.azureDTConfig);
-    const tenantId = az.tenantId;
-    const clientId = az.clientId;
-    const clientSecret = az.clientSecret;
-    const digitalTwinsUrl = az.digitalTwinsUrl;
+    const { tenantId, clientId, clientSecret, digitalTwinsUrl } = az;
 
-    node.on("input", async function (msg) {
+    node.on("input", async (msg) => {
       try {
         const credential = new ClientSecretCredential(
           tenantId,
           clientId,
           clientSecret
         );
-
         const digitalTwinsClient = new DigitalTwinsClient(
           digitalTwinsUrl,
           credential
         );
 
         const twinArray = msg.payload;
+
         if (!Array.isArray(twinArray)) {
           throw new Error("Payload is not an array");
         }
 
-        const results = [];
-        for (const twin of twinArray) {
-          const digitalTwinId = twin.twinId;
-          const digitalTwinData = twin.twinData;
-
-          const result = await digitalTwinsClient.upsertDigitalTwin(
-            digitalTwinId,
-            JSON.stringify(digitalTwinData)
-          );
-          results.push(result);
+        if (twinArray.length === 0) {
+          throw new Error("Payload array is empty");
         }
+
+        const results = await Promise.all(
+          twinArray.map(async (twin) => {
+            const { twinId, twinData } = twin;
+            return digitalTwinsClient.upsertDigitalTwin(
+              twinId,
+              JSON.stringify(twinData)
+            );
+          })
+        );
 
         msg.payload = results;
         node.send(msg);
       } catch (error) {
-        node.error("Error Msg: " + error.message);
-        node.error("Error Stack: " + error.stack);
+        node.error(`Error occurred: ${error.message}`, msg);
+        msg.payload = {
+          success: false,
+          error: error.message,
+        };
+        node.send(msg);
       }
     });
   }

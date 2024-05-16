@@ -2,7 +2,7 @@ const { ClientSecretCredential } = require("@azure/identity");
 const { DigitalTwinsClient } = require("@azure/digital-twins-core");
 
 module.exports = function (RED) {
-  function createTwinNode(config) {
+  function batchUpdateTwinsNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
     const az = RED.nodes.getNode(config.azureDTConfig);
@@ -20,18 +20,28 @@ module.exports = function (RED) {
           credential
         );
 
-        const { twinId, twinData } = msg.payload;
-
-        if (!twinId || !twinData) {
-          throw new Error("Payload must contain twinId and twinData");
+        const twinArray = msg.payload;
+        if (!Array.isArray(twinArray)) {
+          throw new Error("Payload is not an array");
         }
 
-        const result = await digitalTwinsClient.upsertDigitalTwin(
-          twinId,
-          JSON.stringify(twinData)
+        if (twinArray.length === 0) {
+          throw new Error("Payload array is empty");
+        }
+
+        const results = await Promise.all(
+          twinArray.map(async (twin) => {
+            const { twinId, patch } = twin;
+            if (!twinId || !patch) {
+              throw new Error(
+                "Each twin in payload must contain twinId and patch"
+              );
+            }
+            return digitalTwinsClient.updateDigitalTwin(twinId, patch);
+          })
         );
 
-        msg.payload = result;
+        msg.payload = results;
         node.send(msg);
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
@@ -44,5 +54,5 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType("createTwin", createTwinNode);
+  RED.nodes.registerType("batchUpdateTwins", batchUpdateTwinsNode);
 };
