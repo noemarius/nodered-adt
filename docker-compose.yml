@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  node-red:
+    container_name: node-red
+    image: nodered-local:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - data:/data
+    ports:
+      - "1880:1880"
+    environment:
+      - NODE_ENV=development
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PWD}/data

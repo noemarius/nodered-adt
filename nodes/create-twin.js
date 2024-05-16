@@ -4,26 +4,26 @@ const { DigitalTwinsClient } = require("@azure/digital-twins-core");
 module.exports = function (RED) {
   function createTwin(config) {
     RED.nodes.createNode(this, config);
-    var node = this;
-
-    const tenantId = config.tenantId;
-    const clientId = config.clientId;
-    const clientSecret = config.clientSecret;
-    const digitalTwinsUrl = config.digitalTwinsUrl;
+    const node = this;
+    const az = RED.nodes.getNode(config.azureDTConfig);
+    const tenantId = az.tenantId;
+    const clientId = az.clientId;
+    const clientSecret = az.clientSecret;
+    const digitalTwinsUrl = az.digitalTwinsUrl;
 
     node.on("input", async function (msg) {
-      const credential = new ClientSecretCredential(
-        tenantId,
-        clientId,
-        clientSecret
-      );
-
-      const digitalTwinsClient = new DigitalTwinsClient(
-        digitalTwinsUrl,
-        credential
-      );
-
       try {
+        const credential = new ClientSecretCredential(
+          tenantId,
+          clientId,
+          clientSecret
+        );
+
+        const digitalTwinsClient = new DigitalTwinsClient(
+          digitalTwinsUrl,
+          credential
+        );
+
         const digitalTwinId = msg.payload.twinId;
         const digitalTwinData = msg.payload.twinData;
 
@@ -35,7 +35,8 @@ module.exports = function (RED) {
         msg.payload = result;
         node.send(msg);
       } catch (error) {
-        node.error("Failed to create digital twin: " + JSON.stringify(error));
+        node.error("Error Msg: " + error.message);
+        node.error("Error Stack: " + error.stack);
       }
     });
   }
