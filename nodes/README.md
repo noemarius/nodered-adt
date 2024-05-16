@@ -1,8 +1,17 @@
-# nodered-adt
+# nodered-azure-digitaltwins
 
 ## Usage
 
-After installation, the `createTwin` node will be available in the Node-RED editor under the 'function' category. You can drag and drop the node into your flow and double-click on it to configure its properties.
+After installation, the following nodes will be available in the Node-RED editor under the 'function' category:
+
+- `createTwin`
+- `deleteTwin`
+- `getTwins`
+- `batchCreateTwin`
+- `batchUpdateTwins`
+- `updateTwins`
+
+You can drag and drop these nodes into your flow and double-click on them to configure their properties.
 
 ### Configuration Properties
 
@@ -12,34 +21,59 @@ After installation, the `createTwin` node will be available in the Node-RED edit
 - **Client Secret**: The Client Secret for Azure.
 - **Digital Twins URL**: The URL to the Azure Digital Twins instance.
 
-### Inputs
+### Inputs and Outputs
 
-- **msg.payload.twinId**: The ID of the digital twin to create or update.
-- **msg.payload.twinData**: The data for the digital twin in JSON format.
+#### `createTwin`
 
-### Outputs
+- **Inputs:**
+  - `msg.payload.twinId`: The ID of the digital twin to create.
+  - `msg.payload.twinData`: The data for the digital twin in JSON format.
+- **Outputs:**
+  - `msg.payload`: The result from the Azure Digital Twins API.
 
-- **msg.payload**: The result from the Azure Digital Twins API.
+#### `deleteTwin`
+
+- **Inputs:**
+  - `msg.payload.twinId`: The ID of the digital twin to delete.
+- **Outputs:**
+  - `msg.payload`: The result of the deletion operation.
+
+#### `getTwins`
+
+- **Inputs:**
+  - `msg.modelName` (optional): The model name to filter the digital twins. If set to `"all"`, it retrieves all twins.
+- **Outputs:**
+  - `msg.payload`: The list of digital twins retrieved from the Azure Digital Twins API.
+
+#### `batchCreateTwin`
+
+- **Inputs:**
+  - `msg.payload`: An array of objects containing `twinId` and `twinData` for each digital twin to create.
+- **Outputs:**
+  - `msg.payload`: The results from the Azure Digital Twins API for each created twin.
+
+#### `updateTwins`
+
+- **Inputs:**
+  - `msg.payload.twinId`: The ID of the digital twin to update.
+  - `msg.payload.patch`: The patch data for the digital twin.
+- **Outputs:**
+  - `msg.payload`: The result from the Azure Digital Twins API.
+
+#### `batchUpdateTwins`
+
+- **Inputs:**
+  - `msg.payload`: An array of objects containing `twinId` and `patch` data for each digital twin to update.
+- **Outputs:**
+  - `msg.payload`: The results from the Azure Digital Twins API for each updated twin.
 
 ### Error Handling
 
-If there is an error in creating the digital twin, the node will output an error message.
-
-## Example
-
-Here is a simple example of how to use the `createTwin` node:
-
-1. Drag and drop the `createTwin` node into your flow.
-2. Configure the Azure credentials and Digital Twins URL in the node settings.
-3. Add an inject node to provide the necessary `twinId` and `twinData`.
-4. Add a debug node to capture the output of the `createTwin` node.
-5. Deploy the flow and trigger the inject node.
-
-This flow will create or update a digital twin in Azure Digital Twins and output the result.
+If there is an error in processing any of the digital twins, the respective node will output an error message.
 
 ## License
 
-This project is licensed under the MIT License - see [LICENSE](https://raw.githubusercontent.com/noemarius/nodered-adt/main/LICENSE)
+This project is licensed under the MIT License - see [LICENSE](https://raw.githubusercontent.com/noemarius/nodered-adt/main/LICENSE).
 
 ---
 
