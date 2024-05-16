@@ -1,6 +1,6 @@
 {
   "name": "@noemarius/nodered-azure-digitaltwins",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Azure DT Nodes",
   "dependencies": {
     "@azure/digital-twins-core": "latest",
@@ -19,9 +19,13 @@
     "nodes": {
       "azure-dt-config": "azure-dt-config.js",
       "create-twin": "create-twin.js",
+      "delete-twin": "delete-twin.js",
+      "update-twin": "update-twin.js",
       "batch-create-twin": "batch-create-twin.js",
-      "get-twins": "get-twins.js",
-      "delete-twin": "delete-twin.js"
+      "batch-delete-twin": "batch-delete-twin.js",
+      "batch-update-twin": "batch-update-twin.js",
+      "delete-all-twins": "delete-all-twins.js",
+      "get-twins": "get-twins.js"
     }
   }
 }
