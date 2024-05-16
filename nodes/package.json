@@ -1,6 +1,6 @@
 {
   "name": "@noemarius/nodered-azure-digitaltwins",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Azure DT Nodes",
   "dependencies": {
     "@azure/digital-twins-core": "latest",
