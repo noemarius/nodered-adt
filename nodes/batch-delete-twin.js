@@ -30,7 +30,7 @@ module.exports = function (RED) {
           throw new Error("Payload is not an array");
         }
 
-        if (twinArray.length !== 0) {
+        if (twinArray.length === 0) {
           throw new Error("Payload array empty");
         }
 
