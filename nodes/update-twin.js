@@ -2,7 +2,7 @@ const { ClientSecretCredential } = require("@azure/identity");
 const { DigitalTwinsClient } = require("@azure/digital-twins-core");
 
 module.exports = function (RED) {
-  function updateTwinsNode(config) {
+  function updateTwinNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
     const az = RED.nodes.getNode(config.azureDTConfig);
@@ -23,26 +23,35 @@ module.exports = function (RED) {
         const { twinId, patch } = msg.payload;
 
         if (!twinId || !patch) {
-          throw new Error("Payload must contain twinId and patch");
+          throw new Error(
+            `Payload must contain twinId and patch, ${JSON.stringify(
+              msg.payload
+            )}`
+          );
         }
 
-        const result = await digitalTwinsClient.updateDigitalTwin(
-          twinId,
-          patch
-        );
+        await digitalTwinsClient.updateDigitalTwin(twinId, patch);
 
-        msg.payload = result;
-        node.send(msg);
+        const successMsg = RED.util.cloneMessage(msg);
+
+        successMsg.payload = {
+          success: true,
+          message: "Digital twin updated successfully.",
+          twinId: twinId,
+        };
+
+        node.send([successMsg, null]);
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
-        msg.payload = {
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = {
           success: false,
           error: error.message,
         };
-        node.send(msg);
+        node.send([null, errorMsg]);
       }
     });
   }
 
-  RED.nodes.registerType("updateTwins", updateTwinsNode);
+  RED.nodes.registerType("updateTwin", updateTwinNode);
 };

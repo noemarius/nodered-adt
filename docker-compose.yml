@@ -2,7 +2,7 @@ version: "3.8"
 services:
   node-red:
     container_name: node-red
-    image: nodered-local:latest
+    image: node-red:latest
     build:
       context: ./
       dockerfile: Dockerfile

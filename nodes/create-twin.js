@@ -23,7 +23,11 @@ module.exports = function (RED) {
         const { twinId, twinData } = msg.payload;
 
         if (!twinId || !twinData) {
-          throw new Error("Payload must contain twinId and twinData");
+          throw new Error(
+            `Payload must contain twinId and twinData, ${JSON.stringify(
+              msg.payload
+            )}`
+          );
         }
 
         const result = await digitalTwinsClient.upsertDigitalTwin(
@@ -31,15 +35,20 @@ module.exports = function (RED) {
           JSON.stringify(twinData)
         );
 
-        msg.payload = result;
-        node.send(msg);
+        const successMsg = RED.util.cloneMessage(msg);
+        successMsg.payload = result;
+
+        node.send([successMsg, null]);
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
-        msg.payload = {
+
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = {
           success: false,
           error: error.message,
         };
-        node.send(msg);
+
+        node.send([null, errorMsg]);
       }
     });
   }

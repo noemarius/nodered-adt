@@ -21,27 +21,62 @@ module.exports = function (RED) {
         );
 
         const query = `SELECT * FROM digitaltwins`;
-        const response = digitalTwinsClient.queryTwins(query);
+        const iterator = digitalTwinsClient.queryTwins(query);
 
-        for await (const page of response.byPage()) {
-          const deletePromises = page.value.map((twin) =>
-            digitalTwinsClient.deleteDigitalTwin(twin.$dtId)
-          );
-          await Promise.all(deletePromises);
+        const twinIds = [];
+        for await (const twin of iterator) {
+          twinIds.push(twin.$dtId);
         }
 
-        msg.payload = {
+        if (twinIds.length === 0) {
+          throw new Error(
+            `"No digital twins found to delete, existing twins ${JSON.stringify(
+              twinIds.length
+            )}`
+          );
+        }
+
+        const results = await Promise.allSettled(
+          twinIds.map((twinId) => digitalTwinsClient.deleteDigitalTwin(twinId))
+        );
+
+        const successes = results
+          .map((result, index) => ({ result, index }))
+          .filter(({ result }) => result.status === "fulfilled")
+          .map(({ index }) => twinIds[index]);
+
+        const errors = results
+          .map((result, index) => ({ result, index }))
+          .filter(({ result }) => result.status === "rejected")
+          .map(({ result, index }) => ({
+            twinId: twinIds[index],
+            error: result.reason.message || result.reason,
+          }));
+
+        const successMsg = RED.util.cloneMessage(msg);
+        successMsg.payload = {
           success: true,
+          deletedTwins: successes,
           message: "Digital twins deleted successfully.",
         };
-        node.send(msg);
+
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = errors;
+
+        if (!errors) {
+          node.send([successMsg, null]);
+        } else {
+          node.send([successMsg, errorMsg]);
+        }
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
-        msg.payload = {
-          success: false,
-          error: error.message,
-        };
-        node.send(msg);
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = [
+          {
+            error: error.message || error,
+          },
+        ];
+        node.send([null, errorMsg]);
       }
     });
   }

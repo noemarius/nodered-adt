@@ -23,23 +23,30 @@ module.exports = function (RED) {
         const { twinId } = msg.payload;
 
         if (!twinId) {
-          throw new Error("Payload must contain twinId");
+          throw new Error(
+            `Payload must contain twinId, ${JSON.stringify(msg.payload)}`
+          );
         }
 
         await digitalTwinsClient.deleteDigitalTwin(twinId);
 
-        msg.payload = {
+        const successMsg = RED.util.cloneMessage(msg);
+        successMsg.payload = {
           success: true,
           message: "Digital twin deleted successfully.",
+          twinId: twinId,
         };
-        node.send(msg);
+        node.send([successMsg, null]);
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
-        msg.payload = {
+
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = {
           success: false,
           error: error.message,
+          twinId: msg.payload.twinId || null,
         };
-        node.send(msg);
+        node.send([null, errorMsg]);
       }
     });
   }

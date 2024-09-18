@@ -1,45 +1,53 @@
-<script type="text/javascript">
-    RED.nodes.registerType('azureDTConfig', {
-        category: 'config',
-        defaults:  {
-            name: { value: "" },
-            tenantId: { value: "", required: true },
-            clientId: { value: "", required: true },
-            clientSecret: { value: "", required: true },
-            digitalTwinsUrl: { value: "", required: true }
-        },
-        label: function() {
-            return this.name || "azureDTConfig";
-        }
-    });
-</script>
-
 <script type="text/html" data-template-name="azureDTConfig">
     <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
-        <input type="text" id="node-config-input-name">
+      <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+      <input type="text" id="node-config-input-name" placeholder="Optional name">
     </div>
     <div class="form-row">
-        <label for="node-config-input-tenantId"><i class="fa fa-bookmark"></i>Tenant ID</label>
-        <input type="text" id="node-config-input-tenantId">
+      <label for="node-config-input-tenantId"><i class="fa fa-id-badge"></i> Tenant ID</label>
+      <input type="text" id="node-config-input-tenantId" placeholder="Your Tenant ID">
     </div>
     <div class="form-row">
-        <label for="node-config-input-clientId"><i class="fa fa-bookmark"></i>Client ID</label>
-        <input type="text" id="node-config-input-clientId">
+      <label for="node-config-input-clientId"><i class="fa fa-user"></i> Client ID</label>
+      <input type="text" id="node-config-input-clientId" placeholder="Your Client ID">
     </div>
     <div class="form-row">
-        <label for="node-config-input-clientSecret"><i class="fa fa-bookmark"></i>Client Secret</label>
-        <input type="text" id="node-config-input-clientSecret">
+      <label for="node-config-input-digitalTwinsUrl"><i class="fa fa-link"></i> Digital Twins URL</label>
+      <input type="text" id="node-config-input-digitalTwinsUrl" placeholder="https://<your-instance>.api.<region>.digitaltwins.azure.net">
     </div>
     <div class="form-row">
-        <label for="node-config-input-digitalTwinsUrl"><i class="fa fa-bookmark"></i>Digital Twin Url</label>
-        <input type="text" id="node-config-input-digitalTwinsUrl">
+      <label for="node-config-input-clientSecret"><i class="fa fa-key"></i> Client Secret</label>
+      <input type="password" id="node-config-input-clientSecret">
     </div>
-</script>
-
-
-<script type="text/html" data-help-name="getTwins">
-    <p>
-        Configure authentication to azure 
-    </p>
-</script>
+  </script>
+  
+  <script type="text/html" data-help-name="azureDTConfig">
+    <p>This configuration node securely stores your Azure Digital Twins credentials.</p>
+    <p><strong>Fields:</strong></p>
+    <ul>
+      <li><strong>Name:</strong> Optional name for the config node.</li>
+      <li><strong>Tenant ID:</strong> Your Azure Active Directory Tenant ID.</li>
+      <li><strong>Client ID:</strong> The Client ID of your Azure AD application.</li>
+      <li><strong>Client Secret:</strong> The Client Secret associated with your Azure AD application (stored securely).</li>
+      <li><strong>Digital Twins URL:</strong> The endpoint URL for your Azure Digital Twins instance.</li>
+    </ul>
+  </script>
+  
+  <script type="text/javascript">
+    RED.nodes.registerType('azureDTConfig', {
+      category: 'config',
+      defaults: {
+        name: { value: '' },
+        tenantId: { value: '' },
+        clientId: { value: '' },
+        digitalTwinsUrl: { value: '' },
+      },
+      credentials: {
+        clientSecret: { type: 'password' },
+      },
+      label: function () {
+        return this.name || 'azureDTConfig';
+      },
+    });
+  </script>
+  

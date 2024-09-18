@@ -5,10 +5,11 @@
         icon: "icons/function.svg",
         defaults: {
             name: { value: "" },
-            azureDTConfig: {value:"", type:"azureDTConfig"},
+            azureDTConfig: { value: "", type: "azureDTConfig" },
         },
         inputs: 1,
-        outputs: 1,
+        outputs: 2,
+        outputLabels: ["Success", "Errors"],
         label: function() {
             return this.name || "batchUpdateTwins";
         }
@@ -17,16 +18,20 @@
 
 <script type="text/html" data-template-name="batchUpdateTwins">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row node-input-azureDTConfig">
-        <label for="node-input-azureDTConfig"><i class="fa fa-sign-in"></i>+Azure auth</label>
-        <input type="text" id="node-input-azureDTConfig"  placeholder="Select..." >
+        <label for="node-input-azureDTConfig"><i class="fa fa-sign-in"></i> Azure Auth</label>
+        <input type="text" id="node-input-azureDTConfig" placeholder="Select...">
     </div>
-
 </script>
 
 <script type="text/html" data-help-name="batchUpdateTwins">
-    <p>This node allows you to get all twins with a specific model from a digital twin using Azure Digital Twins. Configure the Tenant ID, Client ID, Client Secret, and the Digital Twins URL to set up the node.</p>
+    <p>This node allows you to batch update digital twins using Azure Digital Twins. Configure the Tenant ID, Client ID, Client Secret, and the Digital Twins URL to set up the node.</p>
+    <p><strong>Outputs:</strong></p>
+    <ol>
+        <li><strong>Success:</strong> Contains an array of successfully updated twins with their results.</li>
+        <li><strong>Errors:</strong> Contains an array of errors for twins that failed to update.</li>
+    </ol>
 </script>

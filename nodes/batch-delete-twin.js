@@ -6,10 +6,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     const az = RED.nodes.getNode(config.azureDTConfig);
-    const tenantId = az.tenantId;
-    const clientId = az.clientId;
-    const clientSecret = az.clientSecret;
-    const digitalTwinsUrl = az.digitalTwinsUrl;
+    const { tenantId, clientId, clientSecret, digitalTwinsUrl } = az;
 
     node.on("input", async function (msg) {
       try {
@@ -27,28 +24,56 @@ module.exports = function (RED) {
         const twinArray = msg.payload;
 
         if (!Array.isArray(twinArray)) {
-          throw new Error("Payload is not an array");
+          throw new Error(
+            `Payload is not an array, ${JSON.stringify(msg.payload)}`
+          );
         }
 
         if (twinArray.length === 0) {
-          throw new Error("Payload array empty");
+          throw new Error(
+            `Payload array is empty, ${JSON.stringify(msg.payload)}`
+          );
         }
 
-        const result = [];
-        for (const twinId of twinArray) {
-          const response = await digitalTwinsClient.deleteDigitalTwin(twinId);
-          result.push(response);
+        const results = await Promise.allSettled(
+          twinArray.map(async (twinId) => {
+            return digitalTwinsClient.deleteDigitalTwin(twinId);
+          })
+        );
+
+        const successes = results
+          .map((result, index) => ({ result, index }))
+          .filter(({ result }) => result.status === "fulfilled")
+          .map(({ index }) => twinArray[index]);
+
+        const errors = results
+          .map((result, index) => ({ result, index }))
+          .filter(({ result }) => result.status === "rejected")
+          .map(({ result, index }) => ({
+            twinId: twinArray[index],
+            error: result.reason.message || result.reason,
+          }));
+
+        const successMsg = RED.util.cloneMessage(msg);
+        successMsg.payload = successes;
+
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = errors;
+
+        if (!errors) {
+          node.send([successMsg, null]);
+        } else {
+          node.send([successMsg, errorMsg]);
         }
-
-        msg.payload = {
-          success: true,
-          message: "Digital twin deleted successfully.",
-        };
-
-        node.send(msg);
       } catch (error) {
-        node.error("Error Msg: " + error.message);
-        node.error("Error Stack: " + error.stack);
+        node.error(`Error occurred: ${error.message}`, msg);
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = [
+          {
+            error: error.message || error,
+          },
+        ];
+        node.send([null, errorMsg]);
       }
     });
   }

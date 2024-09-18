@@ -20,27 +20,33 @@ module.exports = function (RED) {
           credential
         );
 
+        // Retrieve modelName from msg.payload or default to 'all'
+        const modelName =
+          msg.payload && msg.payload.modelName ? msg.payload.modelName : "all";
+
         const query =
-          msg.modelName && msg.modelName !== "all"
-            ? `SELECT * FROM digitaltwins WHERE IS_OF_MODEL('${msg.modelName}')`
+          modelName && modelName !== "all"
+            ? `SELECT * FROM digitaltwins WHERE IS_OF_MODEL('${modelName}')`
             : `SELECT * FROM digitaltwins`;
 
         const response = digitalTwinsClient.queryTwins(query);
-        let twins = [];
+        const twins = [];
 
-        for await (const page of response.byPage()) {
-          twins = twins.concat(page.value);
+        for await (const twin of response) {
+          twins.push(twin);
         }
 
-        msg.payload = twins;
-        node.send(msg);
+        const successMsg = RED.util.cloneMessage(msg);
+        successMsg.payload = twins;
+        node.send([successMsg, null]);
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
-        msg.payload = {
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = {
           success: false,
           error: error.message,
         };
-        node.send(msg);
+        node.send([null, errorMsg]);
       }
     });
   }

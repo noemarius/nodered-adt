@@ -23,14 +23,18 @@ module.exports = function (RED) {
         const twinArray = msg.payload;
 
         if (!Array.isArray(twinArray)) {
-          throw new Error("Payload is not an array");
+          throw new Error(
+            `Payload is not an array, ${JSON.stringify(msg.payload)}`
+          );
         }
 
         if (twinArray.length === 0) {
-          throw new Error("Payload array is empty");
+          throw new Error(
+            `Payload array is empty, ${JSON.stringify(msg.payload)}`
+          );
         }
 
-        const results = await Promise.all(
+        const results = await Promise.allSettled(
           twinArray.map(async (twin) => {
             const { twinId, twinData } = twin;
             return digitalTwinsClient.upsertDigitalTwin(
@@ -40,15 +44,37 @@ module.exports = function (RED) {
           })
         );
 
-        msg.payload = results;
-        node.send(msg);
+        const successes = results
+          .filter((result) => result.status === "fulfilled")
+          .map((result) => result.value);
+
+        const errors = results
+          .filter((result) => result.status === "rejected")
+          .map((result, index) => ({
+            twin: twinArray[index],
+            error: result.reason.message || result.reason,
+          }));
+
+        const successMsg = RED.util.cloneMessage(msg);
+        successMsg.payload = successes;
+
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = errors;
+
+        if (!errors) {
+          node.send([successMsg, null]);
+        } else {
+          node.send([successMsg, errorMsg]);
+        }
       } catch (error) {
         node.error(`Error occurred: ${error.message}`, msg);
-        msg.payload = {
-          success: false,
-          error: error.message,
-        };
-        node.send(msg);
+        const errorMsg = RED.util.cloneMessage(msg);
+        errorMsg.payload = [
+          {
+            error: error.message || error,
+          },
+        ];
+        node.send([null, errorMsg]);
       }
     });
   }
